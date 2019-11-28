@@ -14,6 +14,6 @@ GreasyFork: *TBD*
 Changelog
 ---------
 
-* 0.1.0 (Apr 2, 2019)
+* 0.1.0 (Nov 29, 2019)
 
   - First release.
