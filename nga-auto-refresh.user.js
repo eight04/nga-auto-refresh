@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name NGA Auto Refresh
-// @version 0.0.0
+// @version 0.1.0
 // @description Refresh NGA post automatically.
 // @license MIT
 // @author eight04 <eight04@gmail.com> (https://github.com/eight04)
 // @homepageURL https://github.com/eight04/nga-auto-refresh
 // @supportURL https://github.com/eight04/nga-auto-refresh/issues
-// @include *://bbs.nga.cn/read.php*
+// @match *://bbs.nga.cn/read.php*
 // @grant none
 // ==/UserScript==
 

@@ -1,6 +1,6 @@
 {
   "name": "nga-auto-refresh",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Refresh NGA post automatically.",
   "keywords": [
     "userscript",
