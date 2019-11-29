@@ -22,26 +22,30 @@
       await delay(1000);
     }
     updateStatus("loading");
-    const buffer = await (await fetch(location.href)).arrayBuffer();
+    const r = await fetch(location.href);
+    if (!r.ok) {
+      console.error("connection error", r);
+      continue;
+    }
+    const buffer = await r.arrayBuffer();
     const parser = new DOMParser;
     const root = parser.parseFromString(await decodeGBK(buffer), "text/html");
-    const lastCommentID = getLastPostID();
+    const loadedIds = getLoadedIds();
 
     const nodes = root.querySelector("#m_posts_c").children;
     const posts = [];
     for (let i = 0; i < nodes.length; i += 2) {
+      const id = nodes[i].firstElementChild.firstElementChild.id;
+      if (loadedIds.has(id)) {
+        continue;
+      }
       posts.push({
         table: nodes[i],
         js: createScript(nodes[i + 1])
       });
     }
-    const index = posts.findIndex(p => p.table.firstElementChild.firstElementChild.id.endsWith(lastCommentID));
-    if (index < 0) {
-      throw new Error(`cannot find comment ${lastCommentID}`);
-    }
     
-    const newPosts = posts.slice(index + 1);
-    if (newPosts.length) {
+    if (posts.length) {
       // update userinfo
       for (const script of root.querySelectorAll("script")) {
         if (script.textContent.includes("userinfostart")) {
@@ -52,7 +56,7 @@
       
       // update post
       const container = document.querySelector("#m_posts_c");
-      for (const post of newPosts) {
+      for (const post of posts) {
         container.append(post.table, post.js);
       }
 
@@ -68,9 +72,13 @@
 
   updateStatus("current page completed");
 
-  function getLastPostID() {
-    const posts = document.querySelectorAll(".postrow");
-    return posts[posts.length - 1].id.match(/\d+$/)[0];
+  function getLoadedIds() {
+    const s = new Set;
+    const rows = document.querySelectorAll(".postrow");
+    for (const row of rows) {
+      s.add(row.id);
+    }
+    return s;
   }
 
   function createStatusText() {
