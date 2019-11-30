@@ -15,6 +15,9 @@
   const updateInterval = 60 * 1000;
   const statusText = createStatusText();
   let lastUpdate = Date.now();
+  // https://github.com/Tampermonkey/tampermonkey/issues/705
+  const setTimeout = window.setTimeout.bind(window);
+  const fetch = window.fetch.bind(window);
 
   while (!document.querySelector("[title=加载下一页]")) {
     while (Date.now() - lastUpdate < updateInterval) {
