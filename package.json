@@ -28,6 +28,7 @@
   "private": true,
   "userscript": {
     "name": "NGA Auto Refresh",
+    "namespace": "https://github.com/eight04",
     "match": [
       "*://bbs.nga.cn/read.php*"
     ]
