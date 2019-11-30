@@ -14,6 +14,11 @@ GreasyFork: *TBD*
 Changelog
 ---------
 
+* 0.1.1 (Dec 1, 2019)
+
+  - Fix: global API may throw on Tampermonkey.
+  - Fix: don't throw on a missing reply.
+
 * 0.1.0 (Nov 29, 2019)
 
   - First release.
