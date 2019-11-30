@@ -9,7 +9,8 @@ NGA Auto Refresh
 Installation
 ------------
 
-GreasyFork: *TBD*
+* Github: https://github.com/eight04/nga-auto-refresh
+* GreasyFork: https://greasyfork.org/zh-TW/scripts/393133-nga-auto-refresh
 
 Changelog
 ---------
