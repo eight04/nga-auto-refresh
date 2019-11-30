@@ -15,6 +15,10 @@ Installation
 Changelog
 ---------
 
+* 0.1.2 (Dec 1, 2019)
+
+  - Fix: missing namespace.
+
 * 0.1.1 (Dec 1, 2019)
 
   - Fix: global API may throw on Tampermonkey.
