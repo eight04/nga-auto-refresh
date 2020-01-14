@@ -26,9 +26,14 @@
       await delay(1000);
     }
     updateStatus("loading");
-    const r = await fetch(location.href);
-    if (!r.ok) {
-      console.error("connection error", r);
+    let r;
+    try {
+      r = await fetch(location.href);
+      if (!r.ok) {
+        throw new Error("connection error");
+      }
+    } catch (err) {
+      console.error(err, r);
       continue;
     }
     const buffer = await r.arrayBuffer();
