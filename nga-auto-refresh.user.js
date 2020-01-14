@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name NGA Auto Refresh
-// @version 0.1.2
+// @version 0.1.3
 // @description Refresh NGA post automatically.
 // @license MIT
 // @author eight04 <eight04@gmail.com> (https://github.com/eight04)
