@@ -15,6 +15,10 @@ Installation
 Changelog
 ---------
 
+* 0.1.3 (Jan 15, 2019)
+
+  - Fix: don't throw on fetch error.
+
 * 0.1.2 (Dec 1, 2019)
 
   - Fix: missing namespace.
