@@ -46,12 +46,13 @@
     }
     
     function start() {
-      insertEl();
-      check(false);
+      if (insertEl()) {
+        check(false);
+      }
     }
     
     function maybeRestart() {
-      if (el.offsetHeight || !insertEl()) {
+      if (document.body.contains(el) || !insertEl()) {
         return;
       }
       clearTimeout(checkTimer);
