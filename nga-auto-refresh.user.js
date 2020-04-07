@@ -52,14 +52,14 @@
     }
     
     function maybeRestart() {
-      if (document.body.contains(el) || !insertEl()) {
+      if (document.body.contains(el)) {
         return;
       }
       clearTimeout(checkTimer);
       if (abortController) {
         abortController.abort();
       }
-      check();
+      start();
     }
     
     async function check(refresh = true) {
