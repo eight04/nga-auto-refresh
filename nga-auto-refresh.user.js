@@ -7,38 +7,104 @@
 // @homepageURL https://github.com/eight04/nga-auto-refresh
 // @supportURL https://github.com/eight04/nga-auto-refresh/issues
 // @namespace https://github.com/eight04
-// @match *://bbs.nga.cn/read.php*
+// @match *://bbs.nga.cn/read.php?*
+// @match *://bbs.nga.cn/thread.php?*
 // @grant none
 // ==/UserScript==
 
 /* eslint-env browser */
 (async () => {
-  const updateInterval = 60 * 1000;
-  const statusText = createStatusText();
-  let lastUpdate = Date.now();
   // https://github.com/Tampermonkey/tampermonkey/issues/705
   const setTimeout = window.setTimeout.bind(window);
   const fetch = window.fetch.bind(window);
-
-  while (!document.querySelector("[title=加载下一页]")) {
-    while (Date.now() - lastUpdate < updateInterval) {
-      updateStatus();
-      await delay(1000);
+  const updater = createUpdater({
+    interval: 60 * 1000
+  });
+  updater.start();
+  new MutationObserver(updater.maybeRestart).observe(document.querySelector("#mc"), {childList: true});
+  
+  function createUpdater({interval}) {
+    let status = "COMPLETE";
+    let lastUpdate = Date.now();
+    let checkTimer;
+    let abortController;
+    
+    const el = document.createElement("div");
+    el.className = "nga-auto-refresh-status";
+    el.style.margin = "10px";
+    el.style.textAlign = "center";
+    
+    // FIXME: only activate updateCounter if status === "WAITING"
+    setInterval(updateCounter, 1000);
+    
+    return {start, maybeRestart};
+    
+    function insertEl() {
+      const posts = document.querySelector("#m_posts");
+      if (!posts) return false;
+      posts.parentNode.insertBefore(el, posts.nextSibling);
+      return true;
     }
-    updateStatus("loading");
-    let r;
-    try {
-      r = await fetch(location.href);
-      if (!r.ok) {
-        throw new Error("connection error");
+    
+    function start() {
+      if (insertEl()) {
+        check(false);
       }
-    } catch (err) {
-      console.error(err, r);
-      continue;
+    }
+    
+    function maybeRestart() {
+      if (document.body.contains(el)) {
+        return;
+      }
+      clearTimeout(checkTimer);
+      if (abortController) {
+        abortController.abort();
+      }
+      start();
+    }
+    
+    async function check(refresh = true) {
+      status = "CHECKING";
+      if (document.querySelector("[title=加载下一页]")) {
+        status = "COMPLETE";
+        return;
+      }
+      if (refresh) {
+        abortController = new AbortController();
+        const {signal} = abortController;
+        try {
+          await fetchAndRefresh(signal);
+        } catch (err) {
+          console.warn(err);
+          if (signal.aborted) {
+            return;
+          }
+        }
+      }
+      lastUpdate = Date.now();
+      status = "WAITING";
+      checkTimer = setTimeout(check, interval);
+    }
+    
+    function updateCounter() {
+      if (status === "COMPLETE") {
+        el.textContent = "current page completed";
+      } else if (status === "WAITING") {
+        el.textContent = Math.round((interval - (Date.now() - lastUpdate)) / 1000);
+      } else if (status === "CHECKING") {
+        el.textContent = "loading";
+      }
+    }
+  }
+  
+  async function fetchAndRefresh(signal) {
+    const r = await fetch(location.href, {signal});
+    if (!r.ok) {
+      throw new Error("connection error");
     }
     const buffer = await r.arrayBuffer();
     const parser = new DOMParser;
-    const root = parser.parseFromString(await decodeGBK(buffer), "text/html");
+    const root = parser.parseFromString(await decodeGBK(buffer, signal), "text/html");
     const loadedIds = getLoadedIds();
 
     const nodes = root.querySelector("#m_posts_c").children;
@@ -75,11 +141,7 @@
     const newButtonBar = root.querySelector("#pagebbtm");
     buttonBar.parentNode.replaceChild(newButtonBar, buttonBar);
     refreshScripts(newButtonBar);
-    
-    lastUpdate = Date.now();
   }
-
-  updateStatus("current page completed");
 
   function getLoadedIds() {
     const s = new Set;
@@ -90,29 +152,26 @@
     return s;
   }
 
-  function createStatusText() {
-    const posts = document.querySelector("#m_posts");
-    const el = document.createElement("div");
-    el.style.margin = "10px";
-    el.style.textAlign = "center";
-    posts.parentNode.insertBefore(el, posts.nextSibling);
-    return el;
-  }
-
-  function updateStatus(text) {
-    if (!text) {
-      text = Math.round((updateInterval - (Date.now() - lastUpdate)) / 1000);
-    }
-    statusText.textContent = text;
-  }
-
-  function delay(s) {
-    return new Promise(resolve => setTimeout(resolve, s));
+  function decodeGBK(buffer, signal) {
+    const decoder = new TextDecoder("gbk");
+    return Promise.race([
+      decoder.decode(buffer),
+      waitAbort(signal)
+    ]);
   }
   
-  function decodeGBK(buffer) {
-    const decoder = new TextDecoder("gbk");
-    return decoder.decode(buffer);
+  function waitAbort(signal) {
+    return new Promise((resolve, reject) => {
+      if (signal.aborted) {
+        doReject();
+        return;
+      }
+      signal.addEventListener("abort", doReject, {once: true});
+      
+      function doReject() {
+        reject(new Error("aborted"));
+      }
+    });
   }
   
   function createScript(script) {
