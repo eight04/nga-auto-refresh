@@ -34,6 +34,7 @@
     el.style.margin = "10px";
     el.style.textAlign = "center";
     
+    // FIXME: only activate updateCounter if status === "WAITING"
     setInterval(updateCounter, 1000);
     
     return {start, maybeRestart};
