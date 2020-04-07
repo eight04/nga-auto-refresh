@@ -15,7 +15,11 @@ Installation
 Changelog
 ---------
 
-* 0.1.3 (Jan 15, 2019)
+* 0.2.0 (Apr 7, 2020)
+
+  - Breaking: refactor. Support ajax switch page.
+
+* 0.1.3 (Jan 15, 2020)
 
   - Fix: don't throw on fetch error.
 
