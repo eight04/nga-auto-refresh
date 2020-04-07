@@ -7,7 +7,8 @@
 // @homepageURL https://github.com/eight04/nga-auto-refresh
 // @supportURL https://github.com/eight04/nga-auto-refresh/issues
 // @namespace https://github.com/eight04
-// @match *://bbs.nga.cn/read.php*
+// @match *://bbs.nga.cn/read.php?*
+// @match *://bbs.nga.cn/thread.php?*
 // @grant none
 // ==/UserScript==
 
